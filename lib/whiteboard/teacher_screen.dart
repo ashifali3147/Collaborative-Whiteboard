@@ -1,23 +1,35 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'whiteboard_painter.dart'; // Ensure correct import path
+import 'point_data.dart'; // Import the PointData class
 
 class TeacherScreen extends StatefulWidget {
+  const TeacherScreen({super.key});
+
   @override
-  _TeacherScreenState createState() => _TeacherScreenState();
+  State<StatefulWidget> createState() {
+    return _TeacherScreenState();
+  }
 }
 
 class _TeacherScreenState extends State<TeacherScreen> {
-  List<Offset> points = [];
+  List<PointData> points = [];  // List of PointData instead of just Offsets
   final databaseRef = FirebaseDatabase.instance.ref("whiteboard_data");
+  String strokeId = '';  // Variable to hold the current stroke ID
 
+  @override
+  void initState() {
+    super.initState();
+    strokeId = DateTime.now().millisecondsSinceEpoch.toString(); // Unique ID for each stroke
+  }
+
+  // Save points to Firebase with strokeId
   void savePointsToFirebase(Offset point) {
-    final newPoint = {"x": point.dx, "y": point.dy};
-    print("Data Send: ${newPoint}");
+    final newPoint = {"x": point.dx, "y": point.dy, "strokeId": strokeId};
     databaseRef.push().set(newPoint);
   }
 
+  // Clear the whiteboard
   void clearWhiteboard() {
     databaseRef.remove();
     setState(() {
@@ -40,13 +52,14 @@ class _TeacherScreenState extends State<TeacherScreen> {
       body: GestureDetector(
         onPanUpdate: (details) {
           setState(() {
-            points.add(details.localPosition); // Use actual coordinates
-            savePointsToFirebase(details.localPosition);
+            points.add(PointData(details.localPosition, strokeId)); // Store the point with its strokeId
+            savePointsToFirebase(details.localPosition); // Send the point to Firebase
           });
         },
         onPanEnd: (details) {
           setState(() {
-            points.add(Offset.zero); // Adding a separator for new strokes
+            points.add(PointData(Offset.zero, strokeId)); // Adding a separator for new strokes
+            strokeId = DateTime.now().millisecondsSinceEpoch.toString(); // New stroke ID for next stroke
           });
         },
         child: CustomPaint(
