@@ -1,1 +1,21 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"whiteboard-fba04","appId":"1:962926378372:android:a129f517c25b3df657b1d1","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"whiteboard-fba04","configurations":{"android":"1:962926378372:android:a129f517c25b3df657b1d1"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "whiteboard-fba04",
+          "appId": "1:962926378372:android:a129f517c25b3df657b1d1",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "whiteboard-fba04",
+          "configurations": {
+            "android": "1:962926378372:android:a129f517c25b3df657b1d1"
+          }
+        }
+      }
+    }
+  }
+}
