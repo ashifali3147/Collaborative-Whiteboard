@@ -2,15 +2,19 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:whiteboard/whiteboard/home_page.dart';
 
+import 'drawing/src/lets_draw_app.dart';
 import 'firebase_options.dart';
 
 
 Future<void> main() async {
-  runApp(const MyApp());
+  runApp(const SafeArea(child: LetsDrawApp()));
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 }
+
+const Color kCanvasColor = Color(0xfff2f3f7);
+const String kGithubRepo = 'https://github.com/JideGuru/flutter_drawing_board';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -39,7 +43,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: HomePage(),
+      home: LetsDrawApp(),
     );
   }
 }
