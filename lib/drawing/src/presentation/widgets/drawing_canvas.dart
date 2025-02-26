@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:whiteboard/drawing/src/src.dart';
 
@@ -42,6 +44,40 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
   CurrentStrokeValueNotifier get _currentStroke =>
       widget.currentStrokeListenable;
 
+  final DatabaseReference _dbRef = FirebaseDatabase.instance.ref("strokes");
+
+  void _listenForRemoteStrokes() {
+    _dbRef.onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        try {
+          final jsonString = jsonEncode(event.snapshot.value); // Convert to JSON string
+          final List<dynamic> strokesData = jsonDecode(jsonString); // Decode as List<dynamic>
+
+          final List<Stroke> strokes = strokesData.map((data) {
+            final strokeMap = Map<String, dynamic>.from(data);
+
+            if (!strokeMap.containsKey('strokeType')) {
+              strokeMap['strokeType'] = 'normal'; // Default value
+            }
+
+            return Stroke.fromJson(strokeMap);
+          }).toList();
+
+          widget.strokesListenable.value = strokes;
+        } catch (e) {
+          print("Error parsing stroke data: $e");
+        }
+      }
+    });
+  }
+
+
+  @override
+  void initState() {
+    _listenForRemoteStrokes();
+    super.initState();
+  }
+
   void _onPointerDown(PointerDownEvent event) {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
@@ -74,8 +110,12 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
 
   void _onPointerUp(PointerUpEvent event) {
     if (!_currentStroke.hasStroke) return;
-    _strokes.value = List<Stroke>.from(_strokes.value)
-      ..add(_currentStroke.value!);
+
+    final newStroke = _currentStroke.value!;
+    _strokes.value = List<Stroke>.from(_strokes.value)..add(newStroke);
+
+    // Save the new stroke to Firebase
+    _dbRef.set(_strokes.value.map((stroke) => stroke.toJson()).toList());
     _currentStroke.clear();
     widget.onDrawingStrokeChanged?.call(null);
   }

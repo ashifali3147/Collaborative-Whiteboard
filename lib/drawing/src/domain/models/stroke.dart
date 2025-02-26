@@ -28,13 +28,15 @@ abstract class Stroke {
   factory Stroke.fromJson(Map<String, dynamic> json) {
     final points = (json['points'] as List<dynamic>)
         .map(
-          (point) =>
-              Offset((point as List<dynamic>)[0] as double, point[1] as double),
-        )
+          (point) => Offset(
+        (point as List<dynamic>)[0].toDouble(), // Ensure double conversion
+        point[1].toDouble(), // Ensure double conversion
+      ),
+    )
         .toList();
     final color = Color(json['color'] as int);
-    final size = double.parse(json['size'].toString());
-    final opacity = double.parse(json['opacity'].toString());
+    final size = (json['size'] as num).toDouble(); // Use toDouble() for safe conversion
+    final opacity = (json['opacity'] as num).toDouble(); // Use toDouble() for safe conversion
     final strokeType = StrokeType.fromString(json['strokeType'] as String);
 
     switch (strokeType) {
